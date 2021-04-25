@@ -65,7 +65,8 @@ class Server:
                 print(f"{st}: connect")
             else:
                 st = self.clients[s]
-                if recvd := s.recv(4096):
+                recvd = s.recv(4096)
+                if recvd:
                     recv_buffer = st.recv_buffer + recvd
                     while True:
                         message, _, recv_buffer = recv_buffer.partition(b"\n")
@@ -150,7 +151,8 @@ class Server:
 
     # Connected, simply forward messages to the peer.
     def handle_connected(self, s, st, message):
-        if st_ := self.clients.get(st.state.peer):
+        st_ = self.clients.get(st.state.peer)
+        if st_:
             st_.send_buffer += message + b"\n"
         else:
             print(f"{st}: message dropped (no peer)")
@@ -313,9 +315,10 @@ def make_party_validator(pbs_dir):
         move = None
         for line in tm_pbs:
             line = line.strip()
+            match = re.match(r'\[([A-Z]+)\]', line)
             if line.startswith('#'):
                 continue
-            elif match := re.match(r'\[([A-Z]+)\]', line):
+            elif match:
                 move = moves_by_name[match.group(1)]
             else:
                 for name in line.split(','):
